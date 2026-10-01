@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JLPT N4 Ngữ Pháp — Kiểm Soát</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Zen+Kaku+Gothic+New:wght@400;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1108;
+    --paper: #faf6ef;
+    --warm: #f0e8d8;
+    --red: #c0392b;
+    --red-soft: #e8c5c0;
+    --gold: #b8860b;
+    --gold-light: #f5e6a3;
+    --green: #2e7d52;
+    --green-soft: #c5e0d0;
+    --muted: #8a7b6a;
+    --border: #d4c4a8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* Header */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 36px 24px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      rgba(255,255,255,0.02) 20px,
+      rgba(255,255,255,0.02) 40px
+    );
+  }
+  .header-jp {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    letter-spacing: 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.9;
+  }
+  header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(24px, 6vw, 38px);
+    font-weight: 600;
+    letter-spacing: 2px;
+    line-height: 1.2;
+  }
+  header h1 span {
+    color: var(--gold);
+  }
+  .header-sub {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 300;
+    opacity: 0.7;
+    letter-spacing: 1px;
+  }
+
+  /* Stats Bar */
+  .stats-bar {
+    background: var(--warm);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .stat-item strong {
+    color: var(--ink);
+    font-size: 20px;
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .progress-wrap {
+    flex: 1;
+    min-width: 160px;
+    max-width: 300px;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), #4caf85);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .btn-reset {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  /* Filter tabs */
+  .filter-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 14px 20px 0;
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active, .tab:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* Main content */
+  main {
+    padding: 16px 16px 0;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Category section */
+  .category {
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .category-header {
+    background: var(--warm);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+  .category-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cat-icon {
+    font-size: 18px;
+  }
+  .category-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .cat-badge {
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .cat-badge.done {
+    background: var(--green);
+  }
+  .collapse-arrow {
+    font-size: 11px;
+    transition: transform 0.3s;
+    color: var(--muted);
+  }
+  .category.collapsed .collapse-arrow {
+    transform: rotate(-90deg);
+  }
+  .category.collapsed .grammar-list {
+    display: none;
+  }
+
+  /* Grammar items */
+  .grammar-list {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .grammar-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    position: relative;
+  }
+  .grammar-item:hover {
+    background: var(--warm);
+    border-color: var(--border);
+  }
+  .grammar-item.known {
+    background: #f0f9f4;
+    border-color: var(--green-soft);
+  }
+  .grammar-item.known .grammar-pattern {
+    color: var(--green);
+  }
+  .grammar-item.hard {
+    background: #fdf2f1;
+    border-color: var(--red-soft);
+  }
+  .grammar-item.hard .grammar-pattern {
+    color: var(--red);
+  }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    transition: all 0.2s;
+    font-size: 11px;
+  }
+  .grammar-item.known .checkbox {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+  .grammar-item.hard .checkbox {
+    background: var(--red);
+    border-color: var(--red);
+    color: white;
+  }
+
+  .grammar-info { flex: 1; }
+  .grammar-pattern {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+    transition: color 0.2s;
+  }
+  .grammar-meaning {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+  .grammar-example {
+    font-size: 11px;
+    color: #a09080;
+    margin-top: 3px;
+    font-style: italic;
+    line-height: 1.5;
+    display: none;
+  }
+  .grammar-item:hover .grammar-example,
+  .grammar-item.known .grammar-example,
+  .grammar-item.hard .grammar-example {
+    display: block;
+  }
+
+  .item-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 1px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .grammar-item:hover .item-actions {
+    opacity: 1;
+  }
+  .action-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .action-btn:hover { transform: scale(1.1); }
+  .action-btn.check { border-color: var(--green); }
+  .action-btn.check:hover { background: var(--green); }
+  .action-btn.flag { border-color: var(--red); }
+  .action-btn.flag:hover { background: var(--red-soft); }
+
+  /* Hidden items in filtered view */
+  .grammar-item.hidden { display: none; }
+  .category.all-hidden { display: none; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 16px;
+    padding: 12px 20px;
+    font-size: 11px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-jp">JLPT N4 文法マスター</div>
+  <h1>Ngữ Pháp N4 <span>必須</span></h1>
+  <div class="header-sub">Kiểm soát từng mẫu — Chinh phục kỳ thi 05/07/2026</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item">
+    <strong id="knownCount">0</strong>
+    <span>✅ Thuộc</span>
+  </div>
+  <div class="stat-item">
+    <strong id="hardCount">0</strong>
+    <span>🔴 Khó</span>
+  </div>
+  <div class="stat-item">
+    <strong id="totalCount">0</strong>
+    <span>tổng</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label" id="progressLabel">0% hoàn thành</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+  </div>
+  <button class="btn-reset" onclick="resetAll()">↺ Reset</button>
+</div>
+
+<div class="filter-tabs">
+  <button class="tab active" onclick="setFilter('all', this)">Tất cả</button>
+  <button class="tab" onclick="setFilter('unknown', this)">Chưa thuộc</button>
+  <button class="tab" onclick="setFilter('known', this)">✅ Thuộc rồi</button>
+  <button class="tab" onclick="setFilter('hard', this)">🔴 Cần ôn</button>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Click = Thuộc</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> 🚩 = Cần ôn lại</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div> Chưa học</div>
+</div>
+
+<main id="mainContent"></main>
+
+<script>
+const grammarData = [
+  {
+    category: "Trợ từ & Liên kết",
+    icon: "🔗",
+    items: [
+      { pattern: "〜て / 〜で", meaning: "Nối 2 hành động (và...)", example: "起きて、ご飯を食べます。 — Thức dậy rồi ăn cơm." },
+      { pattern: "〜てから", meaning: "Sau khi... thì...", example: "手を洗ってから食べます。 — Rửa tay xong mới ăn." },
+      { pattern: "〜たり〜たりする", meaning: "Khi thì... khi thì... (liệt kê)", example: "読んだり書いたりします。 — Khi đọc khi viết." },
+      { pattern: "〜ながら", meaning: "Vừa... vừa... (2 việc cùng lúc)", example: "音楽を聴きながら勉強します。 — Vừa nghe nhạc vừa học." },
+      { pattern: "〜し、〜し", meaning: "Vừa... lại còn... (liệt kê lý do)", example: "安いし、おいしいし。 — Vừa rẻ vừa ngon." },
+      { pattern: "〜が / 〜けど", meaning: "Nhưng (nối câu ngược nghĩa, mềm)", example: "行きたいけど、時間がない。 — Muốn đi nhưng không có thời gian." },
+      { pattern: "〜のに", meaning: "Mặc dù... (chứa sự thất vọng)", example: "勉強したのに、失敗した。 — Mặc dù đã học mà vẫn thất bại." },
+    ]
+  },
+  {
+    category: "Động từ Thể て",
+    icon: "⚡",
+    items: [
+      { pattern: "〜ている", meaning: "Đang... / Trạng thái kéo dài", example: "雨が降っている。 — Trời đang mưa." },
+      { pattern: "〜てある", meaning: "Đã làm sẵn (trạng thái do ai đó tạo ra)", example: "窓が開けてある。 — Cửa sổ đã được mở sẵn rồi." },
+      { pattern: "〜ておく", meaning: "Làm trước để chuẩn bị", example: "飲み物を買っておきます。 — Mua đồ uống chuẩn bị trước." },
+      { pattern: "〜てしまう", meaning: "Lỡ... / Đã ... (hoàn tất, hơi tiếc)", example: "食べてしまった。 — Đã ăn hết rồi (mất tiêu rồi)." },
+      { pattern: "〜てみる", meaning: "Thử làm xem sao", example: "食べてみてください。 — Hãy thử ăn xem." },
+      { pattern: "〜てくる", meaning: "Đến / Bắt đầu (hướng về người nói)", example: "寒くなってきた。 — Bắt đầu lạnh rồi." },
+      { pattern: "〜ていく", meaning: "Đi / Tiếp tục (hướng ra xa)", example: "暖かくなっていく。 — Ngày càng ấm hơn." },
+      { pattern: "〜てあげる", meaning: "Làm gì cho người khác (mình chủ động)", example: "教えてあげる。 — Mình sẽ dạy cho." },
+      { pattern: "〜てくれる", meaning: "Người khác làm gì cho mình", example: "手伝ってくれた。 — Bạn ấy đã giúp mình." },
+      { pattern: "〜てもらう", meaning: "Được nhờ / xin ai làm", example: "直してもらいました。 — Mình đã nhờ sửa." },
+    ]
+  },
+  {
+    category: "Khả năng & Ý chí",
+    icon: "💪",
+    items: [
+      { pattern: "〜ことができる", meaning: "Có thể làm... (khả năng)", example: "日本語を話すことができます。 — Có thể nói tiếng Nhật." },
+      { pattern: "〜Vる / Vない + ことにする", meaning: "Quyết định làm / không làm", example: "運動することにした。 — Quyết định tập thể dục." },
+      { pattern: "〜ことになる", meaning: "Thành ra phải / Được quyết định (do ngoại cảnh)", example: "日本に行くことになりました。 — Thành ra sẽ đến Nhật." },
+      { pattern: "〜ようにする", meaning: "Cố gắng / Chú ý để làm", example: "早く寝るようにしています。 — Tôi cố ngủ sớm." },
+      { pattern: "〜ようになる", meaning: "Đạt được khả năng / Thay đổi dần", example: "泳げるようになった。 — Bây giờ biết bơi rồi." },
+      { pattern: "〜つもり", meaning: "Có ý định / Dự định làm", example: "来年、日本へ行くつもりです。 — Tôi định đi Nhật năm tới." },
+      { pattern: "〜はずだ", meaning: "Chắc là... / Đáng lẽ phải... (suy luận chắc chắn)", example: "彼は来るはずだ。 — Anh ấy chắc chắn sẽ đến." },
+    ]
+  },
+  {
+    category: "Điều kiện & Giả định",
+    icon: "🔀",
+    items: [
+      { pattern: "〜たら", meaning: "Nếu/khi... thì... (sau khi hoàn thành)", example: "家に帰ったら、電話して。 — Về nhà rồi gọi cho tôi nhé." },
+      { pattern: "〜ば", meaning: "Nếu... thì... (điều kiện)", example: "お金があれば、買う。 — Nếu có tiền thì mua." },
+      { pattern: "〜と", meaning: "Nếu/khi... thì... (tất yếu)", example: "春になると、桜が咲く。 — Đến xuân thì hoa anh đào nở." },
+      { pattern: "〜なら", meaning: "Nếu... thì... (giả định dựa trên thông tin)", example: "日本語なら、山田さんに聞いて。 — Nếu là tiếng Nhật thì hỏi Yamada." },
+      { pattern: "〜ても", meaning: "Dù / Cho dù... (điều kiện nhường)", example: "雨が降っても、行きます。 — Dù trời mưa cũng đi." },
+      { pattern: "〜なくても", meaning: "Dù không... cũng...", example: "薬を飲まなくても、治った。 — Không uống thuốc cũng khỏi." },
+    ]
+  },
+  {
+    category: "Phủ định & Cấm đoán",
+    icon: "🚫",
+    items: [
+      { pattern: "〜なければならない", meaning: "Phải làm... (bắt buộc)", example: "宿題をしなければならない。 — Phải làm bài tập." },
+      { pattern: "〜なくてもいい", meaning: "Không cần phải làm...", example: "来なくてもいいです。 — Không cần đến cũng được." },
+      { pattern: "〜てはいけない", meaning: "Không được làm... (cấm)", example: "ここで食べてはいけません。 — Không được ăn ở đây." },
+      { pattern: "〜ないでください", meaning: "Xin đừng làm...", example: "写真を撮らないでください。 — Xin đừng chụp ảnh." },
+      { pattern: "〜ずに", meaning: "Không... mà (làm việc khác)", example: "食べずに出かけた。 — Ra ngoài mà không ăn." },
+    ]
+  },
+  {
+    category: "Biểu đạt Ý kiến & Phỏng đoán",
+    icon: "💬",
+    items: [
+      { pattern: "〜と思う", meaning: "Tôi nghĩ / Tôi cho rằng...", example: "明日は晴れると思います。 — Tôi nghĩ ngày mai sẽ nắng." },
+      { pattern: "〜と言っていた", meaning: "Họ nói rằng... (thuật lại)", example: "先生は来ると言っていた。 — Thầy nói sẽ đến." },
+      { pattern: "〜でしょう / 〜だろう", meaning: "Chắc là... / Có lẽ...", example: "明日は雨でしょう。 — Ngày mai chắc mưa." },
+      { pattern: "〜かもしれない", meaning: "Có thể... / Biết đâu...", example: "遅れるかもしれない。 — Có thể bị trễ." },
+      { pattern: "〜そうだ (trông có vẻ)", meaning: "Trông có vẻ / Nhìn thì thấy...", example: "おいしそうです。 — Trông có vẻ ngon." },
+      { pattern: "〜そうだ (nghe nói)", meaning: "Nghe nói / Nghe bảo...", example: "明日は雨だそうです。 — Nghe nói ngày mai mưa." },
+      { pattern: "〜らしい", meaning: "Có vẻ như / Nghe bảo (dựa vào bằng chứng)", example: "彼は学生らしい。 — Anh ấy có vẻ là học sinh." },
+      { pattern: "〜ようだ / 〜みたいだ", meaning: "Có vẻ như / Giống như (cảm nhận trực tiếp)", example: "風邪をひいたみたいだ。 — Có vẻ bị cảm rồi." },
+    ]
+  },
+  {
+    category: "Danh từ hóa & Bổ nghĩa",
+    icon: "📦",
+    items: [
+      { pattern: "〜こと", meaning: "Danh từ hóa động từ (sự việc, hành động)", example: "泳ぐことが好きです。 — Tôi thích bơi lội." },
+      { pattern: "〜の (danh từ hóa)", meaning: "Danh từ hóa (ngữ cảnh cụ thể, ngữ khí mềm)", example: "走るのが遅い。 — Chạy thì chậm." },
+      { pattern: "〜ために", meaning: "Để (mục đích) / Vì (nguyên nhân)", example: "日本語を勉強するために来ました。 — Đến để học tiếng Nhật." },
+      { pattern: "〜ように", meaning: "Để (có thể) / Theo cách mà...", example: "聞こえるように話してください。 — Hãy nói to để nghe thấy." },
+      { pattern: "〜まま", meaning: "Cứ... như vậy / Giữ nguyên trạng thái", example: "靴を履いたまま入った。 — Đi giày vào luôn (không cởi)." },
+      { pattern: "〜ところ", meaning: "Đang ở thời điểm / Vừa mới / Sắp", example: "今、食べるところです。 — Bây giờ sắp ăn." },
+      { pattern: "〜間に / 〜間", meaning: "Trong khi / Trong khoảng thời gian", example: "寝ている間に電話が来た。 — Trong lúc ngủ thì có điện thoại." },
+    ]
+  },
+  {
+    category: "Kính ngữ cơ bản",
+    icon: "🎎",
+    items: [
+      { pattern: "お〜になる / ご〜になる", meaning: "Kính ngữ tôn trọng (sonkeigo) — chủ thể là người trên", example: "先生はもうお帰りになりました。 — Thầy đã về rồi ạ." },
+      { pattern: "お〜する / ご〜する", meaning: "Kính ngữ khiêm tốn (kenjougo) — chủ thể là mình", example: "ご説明します。 — Tôi xin được giải thích." },
+      { pattern: "〜ていただく", meaning: "Được nhờ (khiêm tốn) / Xin được...", example: "書いていただけますか。 — Nhờ anh/chị viết được không ạ?" },
+      { pattern: "〜てくださる", meaning: "Người trên làm ơn cho mình", example: "先生が教えてくださった。 — Thầy đã dạy cho tôi." },
+      { pattern: "〜でございます", meaning: "Thể lịch sự tối cao của です", example: "こちらがメニューでございます。 — Đây là thực đơn ạ." },
+    ]
+  },
+  {
+    category: "Số lượng & Mức độ",
+    icon: "📊",
+    items: [
+      { pattern: "〜だけ", meaning: "Chỉ... thôi / Chỉ có...", example: "一つだけ買いました。 — Chỉ mua một cái thôi." },
+      { pattern: "〜しか〜ない", meaning: "Chỉ... (mà không có gì thêm, hàm ý thiếu)", example: "百円しかない。 — Chỉ có 100 yên thôi." },
+      { pattern: "〜ほど〜ない", meaning: "Không... bằng / Không đến mức...", example: "思ったほど難しくない。 — Không khó như nghĩ." },
+      { pattern: "〜より〜ほうが", meaning: "... hơn ... / ... thì ... hơn", example: "電車よりバスのほうが安い。 — Xe buýt rẻ hơn tàu." },
+      { pattern: "〜くらい / 〜ぐらい", meaning: "Khoảng / Chừng / Đến mức", example: "三時間くらいかかる。 — Mất khoảng 3 tiếng." },
+      { pattern: "〜ばかり", meaning: "Toàn... / Chỉ... (phàn nàn hoặc vừa mới)", example: "ゲームばかりしている。 — Cứ chơi game mãi." },
+    ]
+  },
+  {
+    category: "Mẫu thường gặp khác",
+    icon: "⭐",
+    items: [
+      { pattern: "〜方（かた）", meaning: "Cách làm / Phương pháp", example: "使い方を教えてください。 — Xin hãy chỉ cách dùng." },
+      { pattern: "〜やすい / 〜にくい", meaning: "Dễ / Khó làm gì đó", example: "この本は読みやすい。 — Quyển sách này dễ đọc." },
+      { pattern: "〜すぎる", meaning: "Quá... (thái quá)", example: "食べすぎた。 — Ăn quá nhiều rồi." },
+      { pattern: "〜始める / 〜出す", meaning: "Bắt đầu làm...", example: "雨が降り始めた。 — Trời bắt đầu mưa." },
+      { pattern: "〜続ける", meaning: "Tiếp tục làm...", example: "勉強し続けます。 — Tiếp tục học." },
+      { pattern: "〜てほしい", meaning: "Muốn ai đó làm...", example: "来てほしい。 — Muốn bạn đến." },
+      { pattern: "〜させる", meaning: "Bắt / Cho phép (sai khiến cách 1)", example: "子供を寝させた。 — Cho đứa bé ngủ." },
+      { pattern: "〜られる (bị động)", meaning: "Bị làm gì (thụ động)", example: "財布を盗まれた。 — Bị mất ví." },
+      { pattern: "〜によって", meaning: "Do... / Tùy theo... / Bởi...", example: "人によって違います。 — Tùy người mà khác." },
+      { pattern: "〜について", meaning: "Về... / Liên quan đến...", example: "日本の文化について話します。 — Nói về văn hóa Nhật." },
+    ]
+  }
+];
+
+let states = {}; // id: 'unknown' | 'known' | 'hard'
+let currentFilter = 'all';
+
+function getItemId(catIdx, itemIdx) {
+  return `${catIdx}-${itemIdx}`;
+}
+
+function loadStates() {
+  try {
+    const saved = localStorage.getItem('n4grammar');
+    if (saved) states = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function saveStates() {
+  try { localStorage.setItem('n4grammar', JSON.stringify(states)); } catch(e) {}
+}
+
+function buildUI() {
+  const container = document.getElementById('mainContent');
+  container.innerHTML = '';
+
+  grammarData.forEach((cat, catIdx) => {
+    const section = document.createElement('div');
+    section.className = 'category';
+    section.id = `cat-${catIdx}`;
+
+    const header = document.createElement('div');
+    header.className = 'category-header';
+    header.onclick = () => {
+      section.classList.toggle('collapsed');
+    };
+
+    const title = document.createElement('div');
+    title.className = 'category-title';
+    title.innerHTML = `<span class="cat-icon">${cat.icon}</span>${cat.category}`;
+
+    const progress = document.createElement('div');
+    progress.className = 'category-progress';
+    progress.id = `catprog-${catIdx}`;
+
+    const arrow = document.createElement('span');
+    arrow.className = 'collapse-arrow';
+    arrow.textContent = '▼';
+
+    header.appendChild(title);
+    header.appendChild(progress);
+    header.appendChild(arrow);
+    section.appendChild(header);
+
+    const list = document.createElement('div');
+    list.className = 'grammar-list';
+
+    cat.items.forEach((item, itemIdx) => {
+      const id = getItemId(catIdx, itemIdx);
+      const state = states[id] || 'unknown';
+
+      const el = document.createElement('div');
+      el.className = `grammar-item ${state !== 'unknown' ? state : ''}`;
+      el.id = `item-${id}`;
+      el.dataset.state = state;
+      el.dataset.filter = currentFilter;
+
+      el.innerHTML = `
+        <div class="checkbox">${state === 'known' ? '✓' : state === 'hard' ? '!' : ''}</div>
+        <div class="grammar-info">
+          <div class="grammar-pattern">${item.pattern}</div>
+          <div class="grammar-meaning">${item.meaning}</div>
+          <div class="grammar-example">${item.example}</div>
+        </div>
+        <div class="item-actions">
+          <button class="action-btn check" title="Thuộc rồi" onclick="markItem(event,'${id}','known')">✓</button>
+          <button class="action-btn flag" title="Cần ôn" onclick="markItem(event,'${id}','hard')">🚩</button>
+        </div>
+      `;
+
+      el.addEventListener('click', (e) => {
+        if (e.target.classList.contains('action-btn')) return;
+        const cur = states[id] || 'unknown';
+        let next;
+        if (cur === 'unknown') next = 'known';
+        else if (cur === 'known') next = 'unknown';
+        else next = 'unknown';
+        setState(id, next);
+      });
+
+      list.appendChild(el);
+    });
+
+    section.appendChild(list);
+    container.appendChild(section);
+    updateCategoryProgress(catIdx);
+  });
+
+  updateStats();
+  applyFilter(currentFilter);
+}
+
+function markItem(e, id, newState) {
+  e.stopPropagation();
+  const cur = states[id] || 'unknown';
+  setState(id, cur === newState ? 'unknown' : newState);
+}
+
+function setState(id, state) {
+  states[id] = state;
+  saveStates();
+  const el = document.getElementById(`item-${id}`);
+  if (!el) return;
+  el.className = `grammar-item ${state !== 'unknown' ? state : ''}`;
+  el.dataset.state = state;
+  const checkbox = el.querySelector('.checkbox');
+  checkbox.textContent = state === 'known' ? '✓' : state === 'hard' ? '!' : '';
+  const [catIdx] = id.split('-');
+  updateCategoryProgress(parseInt(catIdx));
+  updateStats();
+  applyFilter(currentFilter);
+}
+
+function updateCategoryProgress(catIdx) {
+  const cat = grammarData[catIdx];
+  const prog = document.getElementById(`catprog-${catIdx}`);
+  if (!prog) return;
+  let known = 0, hard = 0;
+  cat.items.forEach((_, i) => {
+    const s = states[getItemId(catIdx, i)] || 'unknown';
+    if (s === 'known') known++;
+    if (s === 'hard') hard++;
+  });
+  const total = cat.items.length;
+  const done = known === total;
+  prog.innerHTML = `
+    <span>${known}/${total} thuộc</span>
+    ${hard > 0 ? `<span style="color:var(--red)">🔴${hard}</span>` : ''}
+    <span class="cat-badge ${done ? 'done' : ''}">${done ? '✓' : known + '/' + total}</span>
+  `;
+}
+
+function updateStats() {
+  let total = 0, known = 0, hard = 0;
+  grammarData.forEach((cat, ci) => {
+    cat.items.forEach((_, ii) => {
+      const s = states[getItemId(ci, ii)] || 'unknown';
+      total++;
+      if (s === 'known') known++;
+      if (s === 'hard') hard++;
+    });
+  });
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('knownCount').textContent = known;
+  document.getElementById('hardCount').textContent = hard;
+  const pct = Math.round((known / total) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${pct}% hoàn thành (${known}/${total})`;
+}
+
+function applyFilter(filter) {
+  currentFilter = filter;
+  grammarData.forEach((cat, ci) => {
+    let visibleCount = 0;
+    cat.items.forEach((_, ii) => {
+      const id = getItemId(ci, ii);
+      const state = states[id] || 'unknown';
+      const el = document.getElementById(`item-${id}`);
+      if (!el) return;
+      let show = false;
+      if (filter === 'all') show = true;
+      else if (filter === 'unknown') show = state === 'unknown';
+      else if (filter === 'known') show = state === 'known';
+      else if (filter === 'hard') show = state === 'hard';
+      el.classList.toggle('hidden', !show);
+      if (show) visibleCount++;
+    });
+    const catEl = document.getElementById(`cat-${ci}`);
+    if (catEl) catEl.classList.toggle('all-hidden', visibleCount === 0);
+  });
+}
+
+function setFilter(filter, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter(filter);
+}
+
+function resetAll() {
+  if (!confirm('Reset tất cả về chưa học?')) return;
+  states = {};
+  saveStates();
+  buildUI();
+}
+
+loadStates();
+buildUI();
+</script>
+</body>
+</html>

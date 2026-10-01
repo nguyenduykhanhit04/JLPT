@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JLPT Kanji Flashcard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --border: #e0ddd6;
+    --border-hover: #c5c2bb;
+    --text: #1a1917;
+    --text-muted: #6b6860;
+    --text-hint: #a8a59e;
+    --green: #1D9E75;
+    --green-bg: #e1f5ee;
+    --red: #D85A30;
+    --red-bg: #faece7;
+    --accent: #3c3a35;
+    --tag-bg: #eeecea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #18181a;
+      --surface: #232326;
+      --border: #38383c;
+      --border-hover: #505055;
+      --text: #f0eeea;
+      --text-muted: #9a9895;
+      --text-hint: #606060;
+      --green: #3ecfa0;
+      --green-bg: #0d2e22;
+      --red: #f0795a;
+      --red-bg: #2e1510;
+      --accent: #c8c5be;
+      --tag-bg: #2a2a2e;
+    }
+  }
+  body {
+    font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+  h1 {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    font-size: 12px;
+  }
+  .controls {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+  .level-btn {
+    padding: 6px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .level-btn:hover { border-color: var(--border-hover); color: var(--text); }
+  .level-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .mode-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .mode-btn.active { background: var(--tag-bg); color: var(--text); border-color: var(--border-hover); }
+  .card-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 380px;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .score-row {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .score-item { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .flashcard {
+    width: 100%;
+    min-height: 240px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 2.5rem 2rem;
+    position: relative;
+    transition: border-color 0.15s, transform 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .flashcard:hover { border-color: var(--border-hover); }
+  .flashcard:active { transform: scale(0.99); }
+  .level-tag {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 100px;
+    background: var(--tag-bg);
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+  }
+  .kanji-char {
+    font-size: 96px;
+    line-height: 1;
+    margin-bottom: 0.75rem;
+    font-weight: 400;
+  }
+  .card-hint {
+    font-size: 12px;
+    color: var(--text-hint);
+  }
+  .card-answer { text-align: center; margin-top: 0.25rem; }
+  .reading { font-size: 20px; font-weight: 500; color: var(--text); letter-spacing: 0.02em; }
+  .meaning { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+  .actions { display: flex; gap: 10px; }
+  .btn {
+    padding: 10px 24px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    min-width: 90px;
+  }
+  .btn:hover { border-color: var(--border-hover); }
+  .btn:active { transform: scale(0.97); }
+  .btn.correct { border-color: var(--green); color: var(--green); }
+  .btn.correct:hover { background: var(--green-bg); }
+  .btn.wrong { border-color: var(--red); color: var(--red); }
+  .btn.wrong:hover { background: var(--red-bg); }
+  .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn.primary:hover { opacity: 0.85; }
+  .stats-label { font-size: 12px; color: var(--text-hint); }
+</style>
+</head>
+<body>
+
+<h1>JLPT Kanji Flashcard</h1>
+
+<div class="controls">
+  <button class="level-btn active" onclick="setLevel('all',this)">Tất cả</button>
+  <button class="level-btn" onclick="setLevel('N5',this)">N5</button>
+  <button class="level-btn" onclick="setLevel('N4',this)">N4</button>
+  <button class="level-btn" onclick="setLevel('N3',this)">N3</button>
+  <button class="level-btn" onclick="setLevel('N2',this)">N2</button>
+  <button class="level-btn" onclick="setLevel('N1',this)">N1</button>
+</div>
+
+<div class="mode-row">
+  <button class="mode-btn active" onclick="setMode('random','mode-random')" id="mode-random">Ngẫu nhiên</button>
+  <button class="mode-btn" onclick="setMode('weak','mode-weak')" id="mode-weak">Ôn yếu</button>
+  <button class="mode-btn" onclick="setMode('unseen','mode-unseen')" id="mode-unseen">Chưa học</button>
+</div>
+
+<div class="card-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+
+  <div class="score-row">
+    <div class="score-item"><div class="dot" style="background:var(--green)"></div><span id="correct-cnt">0</span> đúng</div>
+    <div class="score-item"><div class="dot" style="background:var(--red)"></div><span id="wrong-cnt">0</span> sai</div>
+    <div class="score-item"><div class="dot" style="background:var(--border-hover)"></div><span id="skip-cnt">0</span> bỏ qua</div>
+    <span class="stats-label" id="stats-text"></span>
+  </div>
+
+  <div class="flashcard" id="card" onclick="revealCard()">
+    <span class="level-tag" id="card-level"></span>
+    <div class="kanji-char" id="card-kanji">？</div>
+    <div id="card-answer" class="card-answer" style="display:none">
+      <div class="reading" id="card-reading"></div>
+      <div class="meaning" id="card-meaning"></div>
+    </div>
+    <div class="card-hint" id="card-hint">Nhấn để xem đáp án</div>
+  </div>
+
+  <div class="actions" id="action-btns" style="display:none">
+    <button class="btn wrong" onclick="markCard(false)">✗ Sai</button>
+    <button class="btn" onclick="nextCard()">→ Bỏ qua</button>
+    <button class="btn correct" onclick="markCard(true)">✓ Đúng</button>
+  </div>
+  <div class="actions" id="next-btn">
+    <button class="btn primary" onclick="revealCard()" id="main-action-btn">Bắt đầu</button>
+  </div>
+</div>
+
+<script>
+const kanjiData = {
+  N5: "一,二,八,六,日,目,三,手,十,千,土,上,下,万,九,口,四,西,七,北,円,五,竹,気,左,右,石,岩,年,人,入,大,犬,子,字,学,月,言,牛,花,今,米,来,木,林,森,休,本,体,音,暗,水,泳,火,立,話,門,聞,間,金,貝,買,生,寺,時,魚,雨,電,新,中,半,母,方,友,分,食,父,校,百,読,車,明,出,書,元,古,何,夕,外,多,名,小,少,帰,内,肉,見,女,好,安,町,東,高,山,足,南,飲,田,畑,物,茶,行,川,耳,男,先,長,鳥".split(","),
+  N4: "毛,刀,力,丸,究,酒,光,当,社,降,麦,太,天,夫,有,午,化,界,奥,科,料,作,問,開,閉,王,玉,国,谷,史,使,台,始,治,道,質,星,持,待,特,文,雪,合,答,皿,親,虫,験,毎,海,心,場,後,勉,晩,銀,洋,遅,様,会,雲,交,県,白,宿,夏,原,私,広,売,青,晴,静,運,重,動,働,主,住,飯,服,通,家,才,兄,早,草,里,理,野,黒,暑,都,院,店,週,荷,歌,羽,習,工,空,英,映,公,知,医,病,辺,切,止,糸,近,所,夜,数,味,妹,自,客,若,集,旅,族,京,真,便,池,地,練,歩,朝,紙,低,乗,色,利,秋,漢,題,風,走,正,政,語,部,村,府,油,画,黄,教,考,計,園,遠,図,前,経,軽,寒,同,区,細,思,春,短,然,馬,歴,世,室,屋,速,赤,衣,駅,昼,楽,薬,号,写,品,強,弟,弱,去,声,番,妻,船,送,緑,宅,着,研,不,冬,終,市,姉,館,急,発,済,試,鉄,育,鳴".split(","),
+  N3: "回,向,匹,面,失,和,厚,存,在,肯,信,許,件,念,冷,介,断,歯,神,伸,保,意,億,氷,永,位,泣,活,昨,級,吸,全,欲,浴,容,首,負,敗,則,側,測,員,性,産,等,記,起,副,福,富,支,技,相,箱,想,拾,給,血,塩,温,仲,判,険,検,皮,彼,仕,必,湯,陽,幼,粉,貧,菜,良,娘,根,退,達,芸,絵,転,伝,効,算,泊,優,線,願,仏,身,続,情,争,庫,軍,連,求,球,救,種,注,柱,辞,幸,反,返,坂,板,報,常,賞,用,痛,備,告,造,材,筆,律,建,結,捨,祝,税,説,量,童,者,代,袋,貸,苦,個,受,授,点,調,可,河,局,翌,紹,兵,移,夢,秒,央,決,窓,供,選,帯,婦,初,覚,現,規,係,折,液,類,未,末,非,悲,罪,息,鼻,各,格,落,絡,路,接,努,怒,干,汗,岸,平,呼,職,識,列,例,死,績,積,打,貯,準,進,曜,濯,確,観,果,単,戦,任,実,業,残,浅,消,具,昔,借,兆,包,補,議,他,的,約,均,談,再,構,婚,底,愛,酔,季,難,予,橋,布,希,定,迎,卵,徒,乳,礼,示,表,倍,対,付,守,顔,由,演,横,率,老,悪,要,独,困,団,冊,編,亡,忘,望,曲,農,豊,以,期,欠,次,組,助,査,商,欧,復,複,取,最,棒,祭,悩,勝,階,労,豆,頭,登,喜,突,涙,機,暖,机,築,枚,燃,易,探,深,禁,賛,葉,倒,寝,疑,術,州,順,流,焼,束,恋,変,訳,君,笑,危,犯,器,引,第,費,法,飛,戸,能,久,事,関,舟,程,直,置,植,録,押,無,座,卒,差,綿,形,型,杯,否,満,留,貿,逆,官,管,追,師,指,感,認,旧,児,度,席,成,械,式,収,担,洗,熱,陸,巨,臣,設,投,役,段,缶,候,角,解,島".split(","),
+  N2: "穴,込,片,散,背,胃,貨,靴,含,令,領,齢,迷,菊,申,栄,杉,条,憶,章,灰,炭,粒,舌,乱,酢,簡,宝,溶,導,損,姓,詩,改,配,幅,枝,漁,雷,衆,益,沖,患,疲,被,波,破,士,誌,梅,恥,応,肪,坊,防,訪,放,敷,激,抜,傷,採,彩,廊,限,眼,響,即,節,羊,詳,鮮,養,美,較,拍,縮,泉,源,払,鉱,拡,射,謝,清,精,浄,盟,駐,往,辛,屈,掘,版,仮,販,阪,堂,踊,豚,稼,隊,塚,象,像,財,津,健,詰,況,党,競,鋭,脱,裏,埋,署,緒,著,完,頑,枯,固,居,占,周,召,招,超,昭,照,沼,丘,浜,攻,紅,江,尖,砂,省,快,松,総,共,洪,港,異,暴,爆,滞,掃,納,柄,別,企,渋,御,視,孫,祈,株,俳,輩,額,閣,略,桜,案,宴,刊,軒,宇,評,責,債,丁,頂,灯,庁,停,誰,雑,雇,護,権,勧,催,菓,課,巣,賃,妊,庭,遊,涼,景,影,僕,就,沈,傘,毒,慣,籍,逃,渇,更,硬,抱,泡,砲,捕,寄,埼,崎,義,司,伺,詞,飼,適,滴,敵,酌,凍,乾,炎,購,講,氏,民,眠,睡,郵,華,枠,参,診,珍,修,鈍,純,絶,余,除,途,斜,香,委,梨,勤,預,序,柔,務,怖,刷,嵐,紫,従,縦,命,印,層,増,憎,贈,震,振,娠,浮,札,宗,奈,整,証,症,延,誕,罰,荘,装,討,符,宙,届,制,製,玄,畜,過,針,汁,環,腰,価,煙,票,標,騒,菌,輪,論,輸,並,普,湿,忙,濃,携,誘,暮,募,似,基,吹,姿,資,茨,盗,軟,祖,畳,句,敬,警,街,封,掛,銅,筒,洞,殴,偶,隅,兼,嫌,刻,核,腹,恵,猫,専,博,薄,簿,療,僚,寮,滝,際,察,甘,紺,胸,脳,券,巻,皆,混,筋,励,栃,協,戻,営,援,媛,肌,処,冗,航,恐,状,牧,革,加,床,替,因,帽,致,到,握,侵,害,割,善,述,訓,頼,瀬,刺,策,脈,井,囲,丼,跡,湾,依,崩,沢,岡,群,厳,極,与,汚,互,宛,腕,挙,康,糖,壁,燥,将,脚,昇,泥,展,肩,態,誤,賢,堅,緊,狭,吐,圧,粧,咲,値,舞,我,境,鏡,看,刑,瓶,勇,両,違,偉,衛,充,銃,統,融,契,喫,潔,阜,飾,脂,減,了,承,捜,渡,盛,城,剤,武,域,裁,歳,越,劇,叫,尊,得,勢,換,拒,距,覧,蔵,臓,壊,噴,張,帳,髪,骨,塾,般,殿,撃,殺,比,批,需,端,傾,秩,触,鹿,徹,拝,双,隣,災,離".split(","),
+  N1: "仁,曰,峠,洒,酉,叱,幌,汽,佐,拓,妬,麺,矢,撒,絹,謂,這,杵,牢,犀,牡,吟,頷,貪,捻,鯰,嶺,零,鈴,芥,謎,襖,継,噛,籾,粥,榊,紳,鉢,杏,呆,褒,染,斗,闇,臆,障,彰,詠,拉,笠,闊,括,筈,搾,詐,閑,閃,潤,欄,蘭,爛,及,扱,汲,俗,裕,丈,杖,吏,冶,怠,胎,殆,苔,飴,唄,韻,牲,醒,薩,隆,蒔,侍,己,紀,忌,妃,肢,伎,岐,紋,蚊,蘇,蕾,鱈,雫,漏,霜,搭,塔,孟,猛,溢,薪,忠,串,伴,畔,絆,倹,剣,鹸,婆,披,志,苺,悔,侮,敏,繁,芯,秘,泌,密,蜜,芳,妨,紡,房,倣,傍,謗,傲,腸,揚,瘍,暢,幻,拗,紛,雰,盆,頒,寡,采,免,逸,挽,娩,喰,狼,郎,朗,浪,痕,恨,腿,爵,郷,櫛,祥,翔,姜,窯,云,陰,蔭,曇,魂,釜,斧,郊,絞,鮫,咬,懸,迫,伯,箔,舶,粕,柏,憂,腺,請,靖,錆,鯖,揮,輝,蓮,縺,斬,暫,漸,陣,軸,軌,腫,衝,勲,董,薫,萌,宰,執,摯,拙,堀,窟,尚,償,掌,嘗,樋,桶,猟,蝋,酷,縁,嫁,逐,遂,墜,豪,壕,蒙,鍵,吉,舎,只,克,呪,卓,悼,悦,閲,鯉,狸,厘,糧,瞳,鐘,憧,纏,墨,黙,猪,奢,曙,煮,躇,箸,賭,諸,儲,玩,冠,姑,故,箇,錮,胡,湖,糊,瑚,据,裾,粘,貼,帖,鮎,彫,鯛,苛,阿,扇,詔,岳,功,貢,虹,項,控,腔,銘,妙,沙,炒,抄,劣,賓,訣,訟,聡,翁,恭,翼,糞,智,痴,疾,嫉,挨,丙,窃,拐,祉,卸,寛,硯,窺,系,遜,索,素,累,螺,繋,斤,芹,哲,逝,誓,匠,析,斥,訴,楼,昧,魅,抹,沫,朱,殊,珠,徘,排,誹,扉,斐,憩,臭,嗅,鼾,喀,酪,賂,露,妥,如,茹,按,汝,奴,肝,竿,芋,迂,坪,秤,匿,諾,織,烈,裂,葬,漬,蹟,釘,訂,寧,亭,准,椎,稚,推,唯,維,羅,堆,焦,礁,蕉,躍,擢,奮,奪,顧,雀,隻,穫,獲,歓,雁,擁,雄,裸,彙,弾,蝉,禅,箪,淫,廷,艇,挺,旋,鯨,掠,憬,撲,叢,尤,蹴,枕,耽,桟,銭,践,肖,宵,硝,屑,削,鎖,貞,偵,貫,惧,慎,鎮,填,惜,錯,措,跳,挑,眺,桃,掲,謁,喝,靄,褐,葛,鞭,梗,胞,飽,鞄,哺,浦,舗,奇,騎,綺,椅,儀,犠,蟻,也,施,弛,嗣,覗,笥,嫡,摘,釣,灼,棟,煉,錬,陳,渉,頻,瀕,捗,幹,斡,韓,廟,潮,嘲,淡,痰,溝,昏,罠,抵,邸,曖,賄,髄,随,堕,惰,楕,垂,唾,剰,嘩,粋,砕,惨,疹,悠,屯,頓,沌,巳,肥,把,芭,徐,叙,塗,李,萎,痢,愁,萩,嘆,謹,僅,矛,霧,是,堤,提,匙,稿,縞,嵩,藁,膏,矯,蕎,仙,辿,巾,吊,稀,逓,凧,凪,颯,此,雌,砦,柴,淀,錠,綻,婿,礎,兜,仰,抑,叩,卯,柳,曽,僧,噌,促,捉,辰,賑,唇,辱,孔,踪,綜,崇,捺,斎,尉,慰,俵,征,涎,吾,悟,陪,培,賠,剖,菩,刈,壮,寸,酎,肘,附,腐,狩,献,彦,諺,袖,笛,抽,柚,寅,絃,弦,舷,眩,蓄,牽,姥,嗜,孝,酵,拷,渦,禍,鍋,叶,辻,迅,訊,猿,還,亜,唖,壷,栗,慄,遷,漂,剽,瓢,凹,凸,蛍,蚕,繭,濁,燭,囚,柵,珊,倫,扁,遍,偏,煎,揃,愉,諭,喩,癒,霊,譜,顕,妄,盲,網,径,怪,茎,典,膿,艶,乃,秀,透,莫,模,膜,漠,摸,墓,慕,幕,其,棋,碁,欺,旗,塞,甚,堪,勘,炊,諮,恣,羨,款,逢,縫,峰,蜂,且,粗,租,狙,阻,宜,誼,拘,駒,驚,崖,涯,佳,罫,鮭,窪,桂,橘,胴,桐,駆,枢,鴎,愚,遇,萬,寓,廉,簾,鎌,謙,亥,咳,該,骸,劾,覆,履,趣,娶,撮,偲,穂,塁,卑,碑,苗,描,錨,縛,瞭,隙,竜,篭,俺,鬼,醜,塊,椿,奏,泰,奉,俸,捧,擦,柑,某,謀,媒,煤,嵌,凶,圏,倦,捲,拳,藤,謄,騰,渓,扶,楷,諧,昆,帝,締,諦,蹄,勃,脅,脇,痘,厨,闘,澄,橙,噎,嬉,樹,鼓,膨,呂,侶,宮,丑,紐,慈,磁,滋,幽,幾,磯,畿,緩,几,飢,拠,抗,坑,杭,燕,凡,帆,汎,筑,伏,獄,獣,覇,撚,吻,惣,忽,惚,葱,賜,錫,罵,篤,架,賀,迦,駕,焚,淋,麻,摩,磨,魔,暦,襟,讃,潜,笹,貰,喋,諜,蝶,姻,咽,恩,冒,至,緻,姪,蛭,窒,尋,浸,擬,凝,轄,繕,膳,衡,桁,酬,馴,硫,荒,慌,暁,疎,辣,嗽,漱,勅,爪,瓜,狐,孤,弧,派,赦,嚇,亦,蛮,衷,哀,衰,喪,畏,隈,猥,嬢,譲,壌,醸,棚,尺,釈,択,尽,剛,鋼,綱,礫,牙,芽,冴,雅,邪,穿,既,慨,概,郡,茸,餌,摂,敢,巧,朽,誇,袴,顎,愕,鰐,妖,沃,添,呑,狂,旺,班,斑,栓,詮,厄,範,氾,怨,椀,碗,誉,逮,隷,粛,繍,庸,唐,避,璧,癖,臨,謳,癌,操,繰,藻,奨,醤,弓,窮,弔,剃,梯,沸,溺,鰯,那,邦,寿,鋳,怯,却,蓋,弁,弄,奔,升,尿,尾,尻,尼,炉,啓,眉,翻,藩,審,冥,瞑,罷,熊,属,嘱,呉,娯,虞,汰,駄,鰹,腎,臼,潟,毀,睨,鼠,興,輿,挟,峡,頬,為,偽,曹,槽,遭,漕,后,垢,灸,畝,凄,沿,鉛,朕,丹,皇,呈,聖,唱,娼,殖,踏,剥,禄,盾,循,甲,岬,撫,巫,挫,囃,伐,閥,箋,餓,鵞,託,詫,托,羞,錦,瓦,餅,併,塀,暇,霞,歪,甥,湧,溜,瑠,瘤,緯,柿,肺,隔,塑,遡,俊,唆,酸,駿,竣,棺,遣,槌,埠,帥,獅,旨,詣,稽,憾,鍼,蒸,勾,匂,旬,殉,絢,刃,忍,梁,隠,穏,痩,挿,亀,縄,陥,稲,葵,廃,庶,遮,誠,斉,弐,賦,戒,賊,拭,或,惑,栽,載,戴,繊,戌,威,滅,蔑,茂,虚,嘘,戯,膚,慮,虎,虜,虐,糾,猶,遵,樽,噂,鱒,旦,但,胆,壇,宣,喧,恒,垣,褻,睦,陵,凌,喚,姫,監,鑑,艦,藍,濫,徳,聴,憲,懐,之,乏,芝,慢,漫,蔓,鰻,称,弥,貴,遺,潰,憤,墳,脹,髭,脊,滑,享,郭,熟,醇,倉,創,槍,蒼,没,股,疫,搬,盤,殻,穀,毅,鍛,刹,壱,庇,陛,蛇,舵,陀,而,儒,濡,耐,瑞,喘,頃,煩,須,謡,揺,遥,陶,淘,迭,侯,喉,蟹,麗,麓,薦,慶,撤,棄,叔,淑,寂,督,戚,朴,赴,訃,豹,貌,墾,懇,龍,籠,襲,寵,聾,微,徴,懲,烏,鳩,鴨,鵜,鶴,鶏,鷹,鷲,耕,耗,彗,乙,乞,迄,吃,又,桑,綴,鱗,傑,瞬,幣,弊,蔽,瞥,脛,巡,拶,璃,禽,檎,雛,皺,爽,璽,鬱,漆,膝,黎,姦,晶,囁,琴,琵,琶,馳,唸,吠,贅,痒,掻".split(",")
+};
+
+const readings = {
+  "一":"いち / one","二":"に / two","三":"さん / three","四":"し・よん / four","五":"ご / five","六":"ろく / six","七":"しち・なな / seven","八":"はち / eight","九":"く・きゅう / nine","十":"じゅう / ten","百":"ひゃく / hundred","千":"せん / thousand","万":"まん / ten thousand","円":"えん / yen, circle","日":"にち・ひ / day, sun","月":"つき・がつ / month, moon","火":"ひ・か / fire","水":"みず・すい / water","木":"き・もく / tree","金":"きん・かね / gold, money","土":"つち・ど / earth","山":"やま・さん / mountain","川":"かわ・せん / river","田":"た・でん / rice field","空":"そら・くう / sky","海":"うみ・かい / sea","花":"はな・か / flower","森":"もり / forest","林":"はやし / woods","人":"ひと・じん / person","子":"こ・し / child","女":"おんな・じょ / woman","男":"おとこ・だん / man","父":"ちち・ふ / father","母":"はは・ぼ / mother","友":"とも・ゆう / friend","先":"さき・せん / before, ahead","生":"い・せい / life, birth","学":"まな・がく / study","校":"こう / school","語":"ご / language","話":"はな・わ / talk","聞":"き・ぶん / listen","読":"よ・どく / read","書":"か・しょ / write","見":"み・けん / see","食":"た・しょく / eat","飲":"の・いん / drink","行":"い・こう / go","来":"く・らい / come","帰":"かえ・き / return","出":"で・しゅつ / exit","入":"はい・にゅう / enter","大":"おお・だい / big","小":"ちい・しょう / small","高":"たか・こう / high","長":"なが・ちょう / long","白":"しろ・はく / white","黒":"くろ・こく / black","赤":"あか・せき / red","青":"あお・せい / blue","新":"あたら・しん / new","古":"ふる・こ / old","早":"はや・そう / early","好":"す・こう / like","安":"やす・あん / cheap, safe","多":"おお・た / many","少":"すく・しょう / few","東":"ひがし・とう / east","西":"にし・せい / west","南":"みなみ・なん / south","北":"きた・ほく / north","右":"みぎ・う / right","左":"ひだり・さ / left","上":"うえ・じょう / above","下":"した・か / below","中":"なか・ちゅう / inside","外":"そと・がい / outside","前":"まえ・ぜん / before","後":"うし・ご / after","今":"いま・こん / now","年":"とし・ねん / year","時":"とき・じ / time","間":"あいだ・かん / between","分":"わ・ふん / minute","半":"はん / half","毎":"まい / every","週":"しゅう / week","何":"なに・なん / what","気":"き / spirit","天":"てん / heaven","雨":"あめ・う / rain","電":"でん / electricity","風":"かぜ・ふう / wind","雪":"ゆき・せつ / snow","石":"いし・せき / stone","岩":"いわ・がん / rock","竹":"たけ・ちく / bamboo","米":"こめ・まい / rice","茶":"ちゃ / tea","肉":"にく / meat","魚":"さかな・ぎょ / fish","鳥":"とり・ちょう / bird","犬":"いぬ・けん / dog","牛":"うし・ぎゅう / cow","草":"くさ・そう / grass",
+  "酒":"さけ・しゅ / alcohol","光":"ひかり・こう / light","当":"あた・とう / hit, apply","社":"しゃ / company, shrine","道":"みち・どう / road","星":"ほし・せい / star","文":"ふみ・ぶん / text","場":"ば・じょう / place","様":"さま・よう / manner","会":"あ・かい / meet","県":"けん / prefecture","広":"ひろ・こう / wide","売":"う・ばい / sell","運":"はこ・うん / luck, carry","動":"うご・どう / move","家":"いえ・か / house","理":"り / reason","野":"の・や / field","都":"みやこ・と / capital","店":"みせ・てん / shop","歌":"うた・か / song","英":"えい / England","知":"し・ち / know","医":"い / medicine","病":"や・びょう / illness","夜":"よる・や / night","数":"かず・すう / number","味":"あじ・み / taste","集":"あつ・しゅう / gather","旅":"たび・りょ / travel","真":"ま・しん / true","歩":"ある・ほ / walk","朝":"あさ・ちょう / morning","色":"いろ・しょく / color","利":"り / benefit","秋":"あき・しゅう / autumn","題":"だい / subject","走":"はし・そう / run","正":"ただ・せい / correct","村":"むら・そん / village","教":"おし・きょう / teach","考":"かんが・こう / think","計":"けい / calculate","遠":"とお・えん / far","図":"ず / map","同":"おな・どう / same","思":"おも・し / think","春":"はる・しゅん / spring","短":"みじか・たん / short","馬":"うま・ば / horse","世":"よ・せい / world","室":"しつ / room","屋":"や・おく / shop, roof","速":"はや・そく / fast","衣":"ころも・い / clothing","駅":"えき / station","楽":"たの・がく / fun, music","薬":"くすり・やく / medicine","品":"しな・ひん / goods","強":"つよ・きょう / strong","弱":"よわ・じゃく / weak","声":"こえ・せい / voice","船":"ふね・せん / ship","緑":"みどり・りょく / green","冬":"ふゆ・とう / winter","終":"お・しゅう / end","市":"し / city","急":"きゅう / urgent","発":"はつ / depart","試":"ため・し / try, test","鉄":"てつ / iron","育":"そだ・いく / raise, grow"
+};
+
+const levels = ['N5','N4','N3','N2','N1'];
+let currentLevel = 'all';
+let currentMode = 'random';
+let deck = [], cardIndex = 0, revealed = false;
+let correctCount = 0, wrongCount = 0, skipCount = 0;
+let seen = new Set(), wrong = new Set(), sessionTotal = 0;
+
+function getAllKanji() {
+  if (currentLevel === 'all') return levels.flatMap(l => kanjiData[l]);
+  return kanjiData[currentLevel] || [];
+}
+function buildDeck() {
+  let all = getAllKanji();
+  if (currentMode === 'weak') { let w = [...wrong]; all = w.length ? w : all; }
+  else if (currentMode === 'unseen') { let u = all.filter(k => !seen.has(k)); all = u.length ? u : all; }
+  deck = shuffle([...all]);
+  cardIndex = 0; sessionTotal = deck.length;
+}
+function shuffle(arr) {
+  for (let i = arr.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+function setLevel(lvl, btn) {
+  currentLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  resetSession();
+}
+function setMode(m, id) {
+  currentMode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  resetSession();
+}
+function resetSession() {
+  correctCount = 0; wrongCount = 0; skipCount = 0; revealed = false;
+  buildDeck(); showCard(); updateStats();
+}
+function showCard() {
+  if (!deck.length) buildDeck();
+  const k = deck[cardIndex];
+  document.getElementById('card-kanji').textContent = k;
+  document.getElementById('card-level').textContent = getLevelOf(k);
+  document.getElementById('card-answer').style.display = 'none';
+  document.getElementById('card-hint').style.display = 'block';
+  document.getElementById('action-btns').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'flex';
+  document.getElementById('main-action-btn').textContent = 'Xem đáp án';
+  revealed = false; seen.add(k);
+  updateProgress(); updateStats();
+}
+function getLevelOf(k) {
+  for (const l of levels) { if (kanjiData[l].includes(k)) return l; } return '';
+}
+function revealCard() {
+  if (revealed) return;
+  const k = deck[cardIndex];
+  const info = readings[k];
+  let reading = '', meaning = '';
+  if (info) { const p = info.split(' / '); reading = p[0]; meaning = p[1] || ''; }
+  document.getElementById('card-reading').textContent = reading || '（tra từ điển để biết thêm）';
+  document.getElementById('card-meaning').textContent = meaning;
+  document.getElementById('card-answer').style.display = 'block';
+  document.getElementById('card-hint').style.display = 'none';
+  document.getElementById('action-btns').style.display = 'flex';
+  document.getElementById('next-btn').style.display = 'none';
+  revealed = true;
+}
+function markCard(correct) {
+  const k = deck[cardIndex];
+  if (correct) { correctCount++; wrong.delete(k); } else { wrongCount++; wrong.add(k); }
+  nextCard();
+}
+function nextCard() {
+  if (!revealed) skipCount++;
+  cardIndex = (cardIndex + 1) % deck.length;
+  showCard();
+}
+function updateProgress() {
+  document.getElementById('prog').style.width = (sessionTotal ? Math.round(cardIndex/sessionTotal*100) : 0) + '%';
+}
+function updateStats() {
+  document.getElementById('stats-text').textContent = getAllKanji().length + ' kanji';
+  document.getElementById('correct-cnt').textContent = correctCount;
+  document.getElementById('wrong-cnt').textContent = wrongCount;
+  document.getElementById('skip-cnt').textContent = skipCount;
+}
+
+buildDeck(); showCard();
+</script>
+</body>
+</html>
